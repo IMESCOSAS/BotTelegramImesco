@@ -42,8 +42,14 @@ FECHA, TIPO, CUENTA, UNIDAD_NEGOCIO, CLIENTE, CONCEPTO, MONEDA, VALOR, METODO_PA
 
 # 🔹 Funciones del flujo de conversación
 async def iniciar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Inicia la conversación"""
     context.user_data.clear()
-    await update.message.reply_text("📅 Ingresa la fecha en formato DD/MM/YYYY:")
+    if update.message:
+        await update.message.reply_text("📅 Ingresa la fecha en formato DD/MM/YYYY:")
+    elif update.callback_query:
+        await update.callback_query.message.reply_text("📅 Ingresa la fecha en formato DD/MM/YYYY:")
+    else:
+        print("⚠️ No se pudo obtener el mensaje de inicio.")
     return FECHA
 
 async def recibir_fecha(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
