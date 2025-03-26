@@ -153,6 +153,8 @@ async def recibir_metodo_pago(update: Update, context: ContextTypes.DEFAULT_TYPE
     except Exception as e:
         await query.message.reply_text(f"❌ Error al guardar en la planilla: {str(e)}")
 
+async def cancelar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.message.reply_text("🚫 Conversación cancelada. Podés iniciar de nuevo con /start.")
     return ConversationHandler.END
 
 # 🔹 Iniciar el bot con el token desde variable de entorno
@@ -171,7 +173,7 @@ conv_handler = ConversationHandler(
         VALOR: [MessageHandler(filters.TEXT & ~filters.COMMAND, recibir_valor)],
         METODO_PAGO: [CallbackQueryHandler(recibir_metodo_pago)],
     },
-    fallbacks=[],
+    fallbacks=[CommandHandler("cancelar", cancelar)],
 )
 
 app.add_handler(conv_handler)
