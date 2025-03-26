@@ -157,9 +157,7 @@ async def recibir_metodo_pago(update: Update, context: ContextTypes.DEFAULT_TYPE
     except Exception as e:
         await query.message.reply_text(f"❌ Error al guardar en la planilla: {str(e)}")
 
-async def cancelar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text("🚫 Conversación cancelada. Podés iniciar de nuevo con /start.")
-    return ConversationHandler.END
+    return ConversationHandler.END  # <--- ESTO ES CLAVE PARA QUE PUEDAS VOLVER A EMPEZAR
 
 # 🔹 Iniciar el bot con el token desde variable de entorno
 # 🔹 Iniciar el bot con el token desde variable de entorno
