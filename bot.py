@@ -23,7 +23,8 @@ sheet_base = client.open_by_key(SHEET_ID).worksheet("Base")
 def obtener_opciones(hoja_nombre):
     try:
         hoja = client.open_by_key(SHEET_ID).worksheet(hoja_nombre)
-        valores = hoja.col_values(1)  # toma desde A1
+        valores = hoja.col_values(1)
+        print(f"Opciones obtenidas de {hoja_nombre}: {valores}")
         return valores if valores else ["(Sin datos disponibles)"]
     except Exception as e:
         print(f"Error al obtener datos de {hoja_nombre}: {str(e)}")
@@ -36,6 +37,9 @@ opciones_unidad_negocio = obtener_opciones("UnidadNegocio")
 opciones_monedas = obtener_opciones("Moneda")
 opciones_clientes = obtener_opciones("Cliente")
 opciones_metodos_pago = obtener_opciones("MetodosPago")
+
+print("Ingreso:", opciones_ctas_ingresos)
+print("Gasto:", opciones_ctas_egresos)
 
 # 🔹 Estados de la conversación
 FECHA, TIPO, CUENTA, UNIDAD_NEGOCIO, CLIENTE, CONCEPTO, MONEDA, VALOR, METODO_PAGO = range(9)
