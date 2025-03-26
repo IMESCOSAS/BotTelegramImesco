@@ -46,14 +46,11 @@ FECHA, TIPO, CUENTA, UNIDAD_NEGOCIO, CLIENTE, CONCEPTO, MONEDA, VALOR, METODO_PA
 
 # 🔹 Funciones del flujo de conversación
 async def iniciar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Inicia la conversación"""
     context.user_data.clear()
     if update.message:
         await update.message.reply_text("📅 Ingresa la fecha en formato DD/MM/YYYY:")
     elif update.callback_query:
         await update.callback_query.message.reply_text("📅 Ingresa la fecha en formato DD/MM/YYYY:")
-    else:
-        print("⚠️ No se pudo obtener el mensaje de inicio.")
     return FECHA
 
 async def recibir_fecha(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -103,7 +100,6 @@ async def recibir_cliente(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def recibir_concepto(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data["concepto"] = update.message.text
-
     teclado = [[InlineKeyboardButton(op, callback_data=op)] for op in opciones_monedas]
     await update.message.reply_text("💵 Selecciona la moneda:", reply_markup=InlineKeyboardMarkup(teclado))
     return MONEDA
@@ -112,7 +108,6 @@ async def recibir_moneda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     query = update.callback_query
     await query.answer()
     context.user_data["moneda"] = query.data
-
     await query.message.reply_text("💰 Ingresa el valor:")
     return VALOR
 
@@ -127,7 +122,6 @@ async def recibir_metodo_pago(update: Update, context: ContextTypes.DEFAULT_TYPE
     await query.answer()
     context.user_data["metodo_pago"] = query.data
 
-    # Extraer datos
     tipo = context.user_data["tipo"]
     fecha = context.user_data["fecha"]
     cuenta = context.user_data["cuenta"]
@@ -153,14 +147,16 @@ async def recibir_metodo_pago(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     try:
         sheet_base.append_row(fila, value_input_option="USER_ENTERED")
-        await query.message.reply_text("✅ Datos registrados correctamente en la planilla.")
+        await query.message.reply_text("✅ Datos registrados correctamente en la planilla. Podés cargar otro con /start o cancelar con /cancelar.")
     except Exception as e:
         await query.message.reply_text(f"❌ Error al guardar en la planilla: {str(e)}")
 
-    return ConversationHandler.END  # <--- ESTO ES CLAVE PARA QUE PUEDAS VOLVER A EMPEZAR
+    return ConversationHandler.END
 
-# 🔹 Iniciar el bot con el token desde variable de entorno
-# 🔹 Iniciar el bot con el token desde variable de entorno
+async def cancelar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.message.reply_text("🚫 Conversación cancelada. Podés iniciar de nuevo con /start.")
+    return ConversationHandler.END
+
 # 🔹 Iniciar el bot con el token desde variable de entorno
 app = Application.builder().token(os.environ["BOT_TOKEN"]).build()
 
@@ -178,14 +174,11 @@ conv_handler = ConversationHandler(
         METODO_PAGO: [CallbackQueryHandler(recibir_metodo_pago)],
     },
     fallbacks=[CommandHandler("cancelar", cancelar)],
+    allow_reentry=True
 )
 
 app.add_handler(conv_handler)
-
-# 🔹 Ejecutar como Background Worker en Render
-if __name__ == "__main__":
-    app.run_polling()
-
+app.run_polling()
 
 
 
