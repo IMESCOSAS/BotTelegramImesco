@@ -162,6 +162,7 @@ async def cancelar(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 # 🔹 Iniciar el bot con el token desde variable de entorno
+# 🔹 Iniciar el bot con el token desde variable de entorno
 app = Application.builder().token(os.environ["BOT_TOKEN"]).build()
 
 conv_handler = ConversationHandler(
@@ -181,7 +182,18 @@ conv_handler = ConversationHandler(
 )
 
 app.add_handler(conv_handler)
-app.run_polling()
+
+# 🔹 Ejecutar en entorno Render (background worker)
+import asyncio
+
+async def main():
+    await app.initialize()
+    await app.start()
+    await app.updater.start_polling()
+    await asyncio.Event().wait()
+
+if __name__ == "__main__":
+    asyncio.run(main())
 
 
 
